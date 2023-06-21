@@ -6,4 +6,5 @@ ENDIF()
 
 
 add_subdirectory("./demo_example")
+add_subdirectory("./demo_serializer")
 

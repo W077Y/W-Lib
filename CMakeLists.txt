@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required (VERSION 3.15)
 
-set(target_name "W-LIB_PROJECT")
+set(target_name "WLIB_PROJECT")
 
 FUNCTION(MESSAGE_TREEVIEW VAL)
 IF (NOT DEFINED sub_dir_tree_val) 
@@ -30,7 +30,7 @@ endif()
 
 
 enable_testing()
-add_subdirectory("./W-Lib")
+add_subdirectory("./WLib")
 add_subdirectory("./examples")
 add_subdirectory("./tests")
 
