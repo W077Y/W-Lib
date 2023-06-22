@@ -17,7 +17,7 @@ AlignAfterOpenBracket: Align
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowAllArgumentsOnNextLine: false
 
-AlwaysBreakTemplateDeclarations: Yes
+#AlwaysBreakTemplateDeclarations: None
 
 BinPackParameters: false
 BreakBeforeBraces: Allman

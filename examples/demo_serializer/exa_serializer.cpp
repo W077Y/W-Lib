@@ -23,14 +23,12 @@ struct my_type
   char d;
 };
 
-template <>
-struct WLib::serializer_traits<my_type>
+template <> struct WLib::serializer_traits<my_type>
 {
-  using type_t                          = my_type;
-  static constexpr bool is_serializable = true;
+  using type_t                = my_type;
+  static constexpr bool value = true;
 
-  template <typename byte_sink_t>
-  static constexpr void serialize(byte_sink_t& sink, type_t const& value, ByteOrder const& byte_order = ByteOrder::native)
+  template <typename byte_sink_t> static constexpr void serialize(byte_sink_t& sink, type_t const& value, ByteOrder const& byte_order = ByteOrder::native)
   {
     WLib::serialize(sink, value.a, byte_order);
     WLib::serialize(sink, value.b, byte_order);
@@ -38,9 +36,13 @@ struct WLib::serializer_traits<my_type>
     WLib::serialize(sink, value.d, byte_order);
     return;
   }
+};
+template <> struct WLib::deserializer_traits<my_type>
+{
+  using type_t                = my_type;
+  static constexpr bool value = true;
 
-  template <typename byte_source_t>
-  static constexpr type_t deserialize(byte_source_t& source, ByteOrder const& byte_order = ByteOrder::native)
+  template <typename byte_source_t> static constexpr type_t deserialize(byte_source_t& source, ByteOrder const& byte_order = ByteOrder::native)
   {
     type_t ret;
     ret.a = WLib::deserialize<char>(source, byte_order);
@@ -68,7 +70,9 @@ int main()
   char c;
   int  i;
   c          = WLib::deserialize<char>(source_a);
+  c          = WLib::deserialize<char>(source_a);
   i          = WLib::deserialize<int>(source_a);
   my_type mt = WLib::deserialize<my_type>(source_a);
+
   return 0;
 }
