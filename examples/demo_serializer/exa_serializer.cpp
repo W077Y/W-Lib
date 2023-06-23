@@ -4,7 +4,7 @@
 
 struct null_sink_t
 {
-  bool operator()(std::byte const&) { return true; }
+  void operator()(std::byte const&) { return; }
 };
 
 struct null_source_t
@@ -29,7 +29,7 @@ template <> struct WLib::serializer_traits<my_type>
   using type_t                = my_type;
   static constexpr bool value = true;
 
-  template <typename byte_sink_t> static constexpr void serialize(byte_sink_t& sink, type_t const& value, ByteOrder const& byte_order = ByteOrder::native)
+  template <typename byte_buffer_sink_t> static constexpr void serialize(byte_buffer_sink_t& sink, type_t const& value, ByteOrder const& byte_order = ByteOrder::native)
   {
     WLib::serialize(sink, value.a, byte_order);
     WLib::serialize(sink, value.b, byte_order);
@@ -43,7 +43,7 @@ template <> struct WLib::deserializer_traits<my_type>
   using type_t                = my_type;
   static constexpr bool value = true;
 
-  template <typename byte_source_t> static constexpr type_t deserialize(byte_source_t& source, ByteOrder const& byte_order = ByteOrder::native)
+  template <typename byte_buffer_source_t> static constexpr type_t deserialize(byte_buffer_source_t& source, ByteOrder const& byte_order = ByteOrder::native)
   {
     type_t ret;
     ret.a = WLib::deserialize<char>(source, byte_order);
@@ -65,24 +65,7 @@ int main()
 {
   int ret = 0;
   ret |= example_serializer_min();
-  null_sink_t                sink_a;
-  null_source_t              source_a;
-  [[maybe_unused]] no_type_t no_sink_a;
-  [[maybe_unused]] no_type_t no_source_a;
-
-  static_assert(WLib::is_byte_sink_v<null_sink_t>);
-  static_assert(WLib::is_byte_source_v<null_source_t>);
-
-  WLib::serialize(sink_a, static_cast<char>(0xdd));
-  WLib::serialize(sink_a, static_cast<int>(0xAABBCCDD));
-  WLib::serialize(sink_a, my_type());
-
-  char c;
-  int  i;
-  c          = WLib::deserialize<char>(source_a);
-  c          = WLib::deserialize<char>(source_a);
-  i          = WLib::deserialize<int>(source_a);
-  my_type mt = WLib::deserialize<my_type>(source_a);
-
+  ret |= example_deserializer_min();
+  ret |= example_deserializer_min_2();
   return ret;
 }

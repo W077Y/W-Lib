@@ -15,7 +15,7 @@ namespace WLib
     big_endian,
   };
 
-  template <typename T> constexpr bool is_byte_sink_v   = std::is_same_v<bool, decltype(std::declval<T>()(std::declval<std::byte const&>()))>;
+  template <typename T> constexpr bool is_byte_sink_v   = std::is_same_v<void, decltype(std::declval<T>()(std::declval<std::byte const&>()))>;
   template <typename T> constexpr bool is_byte_source_v = std::is_same_v<std::byte, decltype(std::declval<T>()())>;
 
   namespace internal
@@ -33,7 +33,7 @@ namespace WLib
     {
       using serializeable_base<T>::type_t;
 
-      template <typename byte_sink_t> static constexpr void serialize(byte_sink_t& sink, type_t const& value, ByteOrder const& byte_order = ByteOrder::native)
+      template <typename byte_buffer_sink_t> static constexpr void serialize(byte_buffer_sink_t& sink, type_t const& value, ByteOrder const& byte_order = ByteOrder::native)
       {
         if (byte_order == ByteOrder::native)
         {
@@ -88,7 +88,7 @@ namespace WLib
     {
       using deserializeable_base<T>::type_t;
 
-      template <typename byte_source_t> static constexpr type_t deserialize(byte_source_t& source, ByteOrder const& byte_order = ByteOrder::native)
+      template <typename byte_buffer_source_t> static constexpr type_t deserialize(byte_buffer_source_t& source, ByteOrder const& byte_order = ByteOrder::native)
       {
         type_t ret;
         if (byte_order == ByteOrder::native)
@@ -162,6 +162,92 @@ namespace WLib
   {
     return deserializer_traits<T>::deserialize(source, byte_order);
   }
+
+  class byte_buffer_source_t
+  {
+  public:
+    template <std::size_t N>
+    constexpr byte_buffer_source_t(std::byte (&buffer)[N])
+        : m_b(&buffer[0])
+        , m_e(&buffer[N])
+        , m_c(&buffer[0])
+    {
+    }
+
+    constexpr byte_buffer_source_t(std::byte* begin, std::byte const* end)
+        : m_b(begin)
+        , m_e(end)
+        , m_c(begin)
+    {
+    }
+
+    constexpr std::byte operator()()
+    {
+      if (this->m_c < this->m_e)
+      {
+        return *this->m_c++;
+      }
+      return std::byte();
+    }
+
+    [[nodiscard]] constexpr std::byte*       begin() const { return this->m_b; }
+    [[nodiscard]] constexpr std::byte const* cbegin() const { return this->m_b; }
+    [[nodiscard]] constexpr std::byte const* end() const { return this->m_c; }
+    [[nodiscard]] constexpr std::byte const* cend() const { return this->m_c; }
+
+    [[nodiscard]] constexpr std::size_t get_number_of_processed_bytes() const { return this->m_c - this->m_b; }
+    [[nodiscard]] constexpr std::size_t get_number_of_remaining_bytes() const { return this->m_e - this->m_c; }
+    constexpr void                      restart() { this->m_c = this->m_b; }
+
+  private:
+    std::byte*       m_b;
+    std::byte const* m_e;
+    std::byte*       m_c;
+  };
+
+  class byte_buffer_sink_t
+  {
+  public:
+    template <std::size_t N>
+    constexpr byte_buffer_sink_t(std::byte (&buffer)[N])
+        : m_b(&buffer[0])
+        , m_e(&buffer[N])
+        , m_c(&buffer[0])
+    {
+    }
+
+    constexpr byte_buffer_sink_t(std::byte* begin, std::byte const* end)
+        : m_b(begin)
+        , m_e(end)
+        , m_c(begin)
+    {
+    }
+
+    constexpr void operator()(std::byte const& x)
+    {
+      if (this->m_c >= this->m_e)
+        return;
+
+      *this->m_c++ = x;
+    }
+
+    [[nodiscard]] constexpr std::byte*       begin() const { return this->m_b; }
+    [[nodiscard]] constexpr std::byte const* cbegin() const { return this->m_b; }
+    [[nodiscard]] constexpr std::byte const* end() const { return this->m_c; }
+    [[nodiscard]] constexpr std::byte const* cend() const { return this->m_c; }
+
+    [[nodiscard]] constexpr std::size_t get_number_of_used_bytes() const { return this->m_c - this->m_b; }
+    [[nodiscard]] constexpr std::size_t get_number_of_remaining_bytes() const { return this->m_e - this->m_c; }
+    void                                clear() { this->m_c = this->m_b; }
+
+    [[nodiscard]] constexpr byte_buffer_source_t get_byte_source() const { return byte_buffer_source_t{ this->m_b, this->m_c }; }
+
+  private:
+    std::byte*       m_b;
+    std::byte const* m_e;
+    std::byte*       m_c;
+  };
+
 }    // namespace WLib
 
-#endif    // !WLIB_STATEMACHINE
+#endif    // !WLIB_SERIALIZER_HPP
