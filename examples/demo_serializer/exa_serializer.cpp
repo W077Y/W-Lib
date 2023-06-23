@@ -1,9 +1,10 @@
+#include "exa_serializer_min.hpp"
 #include <WLib_serializer.hpp>
 #include <iostream>
 
 struct null_sink_t
 {
-  void operator()(std::byte const&) { return; }
+  bool operator()(std::byte const&) { return true; }
 };
 
 struct null_source_t
@@ -53,8 +54,17 @@ template <> struct WLib::deserializer_traits<my_type>
   }
 };
 
+
+
+
+
+
+
+
 int main()
 {
+  int ret = 0;
+  ret |= example_serializer_min();
   null_sink_t                sink_a;
   null_source_t              source_a;
   [[maybe_unused]] no_type_t no_sink_a;
@@ -74,5 +84,5 @@ int main()
   i          = WLib::deserialize<int>(source_a);
   my_type mt = WLib::deserialize<my_type>(source_a);
 
-  return 0;
+  return ret;
 }

@@ -15,7 +15,7 @@ namespace WLib
     big_endian,
   };
 
-  template <typename T> constexpr bool is_byte_sink_v   = std::is_same_v<void, decltype(std::declval<T>()(std::declval<std::byte const&>()))>;
+  template <typename T> constexpr bool is_byte_sink_v   = std::is_same_v<bool, decltype(std::declval<T>()(std::declval<std::byte const&>()))>;
   template <typename T> constexpr bool is_byte_source_v = std::is_same_v<std::byte, decltype(std::declval<T>()())>;
 
   namespace internal
