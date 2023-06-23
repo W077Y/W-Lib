@@ -31,9 +31,10 @@ namespace WLib
     };
     template <typename T> struct native_serializeable_type: public serializeable_base<T>
     {
-      using serializeable_base<T>::type_t;
+      using type_t = typename serializeable_base<T>::type_t;
 
-      template <typename byte_buffer_sink_t> static constexpr void serialize(byte_buffer_sink_t& sink, type_t const& value, ByteOrder const& byte_order = ByteOrder::native)
+      template <typename byte_buffer_sink_t>
+      static constexpr void serialize(byte_buffer_sink_t& sink, type_t const& value, ByteOrder const& byte_order = ByteOrder::native)
       {
         if (byte_order == ByteOrder::native)
         {
@@ -86,9 +87,10 @@ namespace WLib
     };
     template <typename T> struct native_deserializeable_type: public deserializeable_base<T>
     {
-      using deserializeable_base<T>::type_t;
+      using type_t = typename serializeable_base<T>::type_t;
 
-      template <typename byte_buffer_source_t> static constexpr type_t deserialize(byte_buffer_source_t& source, ByteOrder const& byte_order = ByteOrder::native)
+      template <typename byte_buffer_source_t>
+      static constexpr type_t deserialize(byte_buffer_source_t& source, ByteOrder const& byte_order = ByteOrder::native)
       {
         type_t ret;
         if (byte_order == ByteOrder::native)
