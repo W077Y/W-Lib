@@ -16,17 +16,21 @@ namespace WLib
   {
   public:
     template <std::size_t N> constexpr byte_buffer_sink_t(std::byte (&buffer)[N]);
+    
     constexpr byte_buffer_sink_t(std::byte* begin, std::byte const* end);
+    
     constexpr void operator()(std::byte const& x);
 
     [[nodiscard]] constexpr std::byte*           begin() const;
     [[nodiscard]] constexpr std::byte const*     cbegin() const;
     [[nodiscard]] constexpr std::byte const*     end() const;
     [[nodiscard]] constexpr std::byte const*     cend() const;
+
     [[nodiscard]] constexpr std::size_t          get_number_of_used_bytes() const;
     [[nodiscard]] constexpr std::size_t          get_number_of_remaining_bytes() const;
     constexpr void                               adjust_positon(std::ptrdiff_t const& offset);
     constexpr void                               clear();
+
     [[nodiscard]] constexpr byte_buffer_source_t get_byte_source() const;
 
   private:
