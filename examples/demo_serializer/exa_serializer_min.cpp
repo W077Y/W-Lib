@@ -1,6 +1,7 @@
-#include "exa_serializer_min.hpp"
+#include "exa_serializer.hpp"
 
-#include <WLib_serializer.hpp>
+#include <WLib_Byte_Buffer_Sink.hpp>
+#include <WLib_Serializer.hpp>
 #include <cassert>
 
 int example_serializer_min()
@@ -61,7 +62,7 @@ int example_deserializer_min_2()
     WLib::serialize(sink, value, WLib::ByteOrder::big_endian);
     assert(sink.get_number_of_used_bytes() == 8);
 
-    auto    source  = sink.get_byte_source();
+    auto source = sink.get_byte_source();
     assert(source.get_number_of_remaining_bytes() == 8);
     assert(source.get_number_of_processed_bytes() == 0);
 
@@ -82,7 +83,6 @@ int example_deserializer_min_2()
     assert(source.get_number_of_processed_bytes() == 8);
     assert(value_3 == 0x42);
     assert(value_4 == 0x42);
-
 
     sink.clear();
     assert(sink.get_number_of_remaining_bytes() == 128);

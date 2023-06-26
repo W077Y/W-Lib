@@ -10,6 +10,7 @@ ENDIF()
 add_executable(${target_name})
 
 target_sources(${target_name}
+	PRIVATE "${CMAKE_CURRENT_LIST_DIR}/exa_serializer.hpp"
 	PRIVATE "${CMAKE_CURRENT_LIST_DIR}/exa_serializer.cpp"
 	PRIVATE "${CMAKE_CURRENT_LIST_DIR}/exa_serializer_min.cpp"
 )
