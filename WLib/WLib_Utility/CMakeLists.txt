@@ -10,7 +10,7 @@ add_library(${target_name} STATIC)
 
 target_sources(${target_name}
 	PUBLIC ${CMAKE_CURRENT_LIST_DIR}/inc/WLib_Utility.hpp
-	PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/WLib_utility.cpp
+	PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/WLib_Utility.cpp
 	)
 
 target_include_directories(	${target_name}
