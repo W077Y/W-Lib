@@ -8,3 +8,4 @@ ENDIF()
 
 add_subdirectory("./externals")
 add_subdirectory("./tst_demo")
+add_subdirectory("./tst_byte_buffer_sink")
