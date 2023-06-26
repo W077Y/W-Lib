@@ -16,6 +16,7 @@ target_sources(${target_name}
 )
 
 target_link_libraries(${target_name} PUBLIC WLIB_SERIALIZER)
+target_link_libraries(${target_name} PUBLIC  WLIB_BYTE_SINK)
 
 add_test(${target_name} ${target_name})
 
