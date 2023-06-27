@@ -10,6 +10,7 @@ ENDIF()
 add_subdirectory("./WLib_Byte_Sink")
 add_subdirectory("./WLib_Serializer")
 add_subdirectory("./WLib_SPI_Abstraction")
+add_subdirectory("./WLib_CRC")
 add_subdirectory("./WLib_Utility")
 
 
