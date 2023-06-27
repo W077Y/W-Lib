@@ -281,3 +281,559 @@ TEST_CASE()
   REQUIRE_FALSE(cs_c.is_selected());
   REQUIRE_FALSE(cs_d.is_selected());
 }
+
+TEST_CASE()
+{
+  using b_c = tst_dummy_hw::byte_count_t;
+  tst_dummy_hw                   spi_1;
+  tst_dummy_hw                   spi_2;
+  tst_dummy_cs                   cs_a;
+  tst_dummy_cs                   cs_b;
+  tst_dummy_cs                   cs_c;
+  tst_dummy_cs                   cs_d;
+  WLib::SPI::SPI_configuration_t cfg{ 100 };
+
+  REQUIRE_FALSE(spi_1.is_enabled());
+  REQUIRE_FALSE(spi_2.is_enabled());
+  REQUIRE(spi_1.get_byte_count() == b_c{ 0, 0, 0 });
+  REQUIRE(spi_2.get_byte_count() == b_c{ 0, 0, 0 });
+  REQUIRE_FALSE(cs_a.is_selected());
+  REQUIRE_FALSE(cs_b.is_selected());
+  REQUIRE_FALSE(cs_c.is_selected());
+  REQUIRE_FALSE(cs_d.is_selected());
+
+  {
+    WLib::SPI::Channel_handle_t ch_handle(spi_1, cs_a, cfg);
+
+    REQUIRE(spi_1.is_enabled());
+    REQUIRE_FALSE(spi_2.is_enabled());
+    REQUIRE(spi_1.get_byte_count() == b_c{ 0, 0, 0 });
+    REQUIRE(spi_2.get_byte_count() == b_c{ 0, 0, 0 });
+    REQUIRE_FALSE(cs_a.is_selected());
+    REQUIRE_FALSE(cs_b.is_selected());
+    REQUIRE_FALSE(cs_c.is_selected());
+    REQUIRE_FALSE(cs_d.is_selected());
+
+    {
+      WLib::SPI::Connection_handle_t con_handle = ch_handle.select();
+
+      REQUIRE(spi_1.is_enabled());
+      REQUIRE_FALSE(spi_2.is_enabled());
+      REQUIRE(spi_1.get_byte_count() == b_c{ 0, 0, 0 });
+      REQUIRE(spi_2.get_byte_count() == b_c{ 0, 0, 0 });
+      REQUIRE(cs_a.is_selected());
+      REQUIRE_FALSE(cs_b.is_selected());
+      REQUIRE_FALSE(cs_c.is_selected());
+      REQUIRE_FALSE(cs_d.is_selected());
+
+      std::byte buf[128] = {};
+      con_handle.transcieve(nullptr, nullptr, 2);
+      con_handle.transcieve(buf, nullptr, 3);
+      con_handle.transcieve(nullptr, buf, 5);
+      con_handle.transcieve(buf, buf, 7);
+
+      REQUIRE(spi_1.is_enabled());
+      REQUIRE_FALSE(spi_2.is_enabled());
+      REQUIRE(spi_1.get_byte_count() == b_c{ 10, 12, 17 });
+      REQUIRE(spi_2.get_byte_count() == b_c{ 0, 0, 0 });
+      REQUIRE(cs_a.is_selected());
+      REQUIRE_FALSE(cs_b.is_selected());
+      REQUIRE_FALSE(cs_c.is_selected());
+      REQUIRE_FALSE(cs_d.is_selected());
+    }
+    REQUIRE(spi_1.is_enabled());
+    REQUIRE_FALSE(spi_2.is_enabled());
+    REQUIRE(spi_1.get_byte_count() == b_c{ 10, 12, 17 });
+    REQUIRE(spi_2.get_byte_count() == b_c{ 0, 0, 0 });
+    REQUIRE_FALSE(cs_a.is_selected());
+    REQUIRE_FALSE(cs_b.is_selected());
+    REQUIRE_FALSE(cs_c.is_selected());
+    REQUIRE_FALSE(cs_d.is_selected());
+    {
+      WLib::SPI::Connection_handle_t con_handle = ch_handle.select();
+
+      REQUIRE(spi_1.is_enabled());
+      REQUIRE_FALSE(spi_2.is_enabled());
+      REQUIRE(spi_1.get_byte_count() == b_c{ 10, 12, 17 });
+      REQUIRE(spi_2.get_byte_count() == b_c{ 0, 0, 0 });
+      REQUIRE(cs_a.is_selected());
+      REQUIRE_FALSE(cs_b.is_selected());
+      REQUIRE_FALSE(cs_c.is_selected());
+      REQUIRE_FALSE(cs_d.is_selected());
+
+      std::byte buf[128] = {};
+      con_handle.transcieve(nullptr, nullptr, 2);
+      con_handle.transcieve(buf, nullptr, 3);
+      con_handle.transcieve(nullptr, buf, 5);
+      con_handle.transcieve(buf, buf, 7);
+
+      REQUIRE(spi_1.is_enabled());
+      REQUIRE_FALSE(spi_2.is_enabled());
+      REQUIRE(spi_1.get_byte_count() == b_c{ 20, 24, 34 });
+      REQUIRE(spi_2.get_byte_count() == b_c{ 0, 0, 0 });
+      REQUIRE(cs_a.is_selected());
+      REQUIRE_FALSE(cs_b.is_selected());
+      REQUIRE_FALSE(cs_c.is_selected());
+      REQUIRE_FALSE(cs_d.is_selected());
+    }
+  }
+
+  REQUIRE_FALSE(spi_1.is_enabled());
+  REQUIRE_FALSE(spi_2.is_enabled());
+  REQUIRE(spi_1.get_byte_count() == b_c{ 20, 24, 34 });
+  REQUIRE(spi_2.get_byte_count() == b_c{ 0, 0, 0 });
+  REQUIRE_FALSE(cs_a.is_selected());
+  REQUIRE_FALSE(cs_b.is_selected());
+  REQUIRE_FALSE(cs_c.is_selected());
+  REQUIRE_FALSE(cs_d.is_selected());
+
+  {
+    WLib::SPI::Channel_handle_t ch_handle(spi_2, cs_c, cfg);
+
+    REQUIRE_FALSE(spi_1.is_enabled());
+    REQUIRE(spi_2.is_enabled());
+    REQUIRE(spi_1.get_byte_count() == b_c{ 20, 24, 34 });
+    REQUIRE(spi_2.get_byte_count() == b_c{ 0, 0, 0 });
+    REQUIRE_FALSE(cs_a.is_selected());
+    REQUIRE_FALSE(cs_b.is_selected());
+    REQUIRE_FALSE(cs_c.is_selected());
+    REQUIRE_FALSE(cs_d.is_selected());
+
+    {
+      WLib::SPI::Connection_handle_t con_handle = ch_handle.select();
+
+      REQUIRE_FALSE(spi_1.is_enabled());
+      REQUIRE(spi_2.is_enabled());
+      REQUIRE(spi_1.get_byte_count() == b_c{ 20, 24, 34 });
+      REQUIRE(spi_2.get_byte_count() == b_c{ 0, 0, 0 });
+      REQUIRE_FALSE(cs_a.is_selected());
+      REQUIRE_FALSE(cs_b.is_selected());
+      REQUIRE(cs_c.is_selected());
+      REQUIRE_FALSE(cs_d.is_selected());
+
+      std::byte buf[128] = {};
+      con_handle.transcieve(nullptr, nullptr, 2);
+      con_handle.transcieve(buf, nullptr, 3);
+      con_handle.transcieve(nullptr, buf, 5);
+      con_handle.transcieve(buf, buf, 7);
+
+      REQUIRE_FALSE(spi_1.is_enabled());
+      REQUIRE(spi_2.is_enabled());
+      REQUIRE(spi_1.get_byte_count() == b_c{ 20, 24, 34 });
+      REQUIRE(spi_2.get_byte_count() == b_c{ 10, 12, 17 });
+      REQUIRE_FALSE(cs_a.is_selected());
+      REQUIRE_FALSE(cs_b.is_selected());
+      REQUIRE(cs_c.is_selected());
+      REQUIRE_FALSE(cs_d.is_selected());
+    }
+    REQUIRE_FALSE(spi_1.is_enabled());
+    REQUIRE(spi_2.is_enabled());
+    REQUIRE(spi_1.get_byte_count() == b_c{ 20, 24, 34 });
+    REQUIRE(spi_2.get_byte_count() == b_c{ 10, 12, 17 });
+    REQUIRE_FALSE(cs_a.is_selected());
+    REQUIRE_FALSE(cs_b.is_selected());
+    REQUIRE_FALSE(cs_c.is_selected());
+    REQUIRE_FALSE(cs_d.is_selected());
+    {
+      WLib::SPI::Connection_handle_t con_handle = ch_handle.select();
+
+      REQUIRE_FALSE(spi_1.is_enabled());
+      REQUIRE(spi_2.is_enabled());
+      REQUIRE(spi_1.get_byte_count() == b_c{ 20, 24, 34 });
+      REQUIRE(spi_2.get_byte_count() == b_c{ 10, 12, 17 });
+      REQUIRE_FALSE(cs_a.is_selected());
+      REQUIRE_FALSE(cs_b.is_selected());
+      REQUIRE(cs_c.is_selected());
+      REQUIRE_FALSE(cs_d.is_selected());
+
+      std::byte buf[128] = {};
+      con_handle.transcieve(nullptr, nullptr, 2);
+      con_handle.transcieve(buf, nullptr, 3);
+      con_handle.transcieve(nullptr, buf, 5);
+      con_handle.transcieve(buf, buf, 7);
+
+      REQUIRE_FALSE(spi_1.is_enabled());
+      REQUIRE(spi_2.is_enabled());
+      REQUIRE(spi_1.get_byte_count() == b_c{ 20, 24, 34 });
+      REQUIRE(spi_2.get_byte_count() == b_c{ 20, 24, 34 });
+      REQUIRE_FALSE(cs_a.is_selected());
+      REQUIRE_FALSE(cs_b.is_selected());
+      REQUIRE(cs_c.is_selected());
+      REQUIRE_FALSE(cs_d.is_selected());
+    }
+  }
+
+  REQUIRE_FALSE(spi_1.is_enabled());
+  REQUIRE_FALSE(spi_2.is_enabled());
+  REQUIRE(spi_1.get_byte_count() == b_c{ 20, 24, 34 });
+  REQUIRE(spi_2.get_byte_count() == b_c{ 20, 24, 34 });
+  REQUIRE_FALSE(cs_a.is_selected());
+  REQUIRE_FALSE(cs_b.is_selected());
+  REQUIRE_FALSE(cs_c.is_selected());
+  REQUIRE_FALSE(cs_d.is_selected());
+}
+
+TEST_CASE()
+{
+  using b_c = tst_dummy_hw::byte_count_t;
+  tst_dummy_hw                   spi_1;
+  tst_dummy_hw                   spi_2;
+  tst_dummy_cs                   cs_a;
+  tst_dummy_cs                   cs_b;
+  tst_dummy_cs                   cs_c;
+  tst_dummy_cs                   cs_d;
+  WLib::SPI::SPI_configuration_t cfg{ 100 };
+
+  WLib::SPI::Channel_Provider chip_a{ spi_1, cs_a };
+  WLib::SPI::Channel_Provider chip_b{ spi_1, cs_b };
+  WLib::SPI::Channel_Provider chip_c{ spi_2, cs_c };
+  WLib::SPI::Channel_Provider chip_d{ spi_2, cs_d };
+
+  REQUIRE_FALSE(spi_1.is_enabled());
+  REQUIRE_FALSE(spi_2.is_enabled());
+  REQUIRE(spi_1.get_byte_count() == b_c{ 0, 0, 0 });
+  REQUIRE(spi_2.get_byte_count() == b_c{ 0, 0, 0 });
+  REQUIRE_FALSE(cs_a.is_selected());
+  REQUIRE_FALSE(cs_b.is_selected());
+  REQUIRE_FALSE(cs_c.is_selected());
+  REQUIRE_FALSE(cs_d.is_selected());
+
+  {
+    WLib::SPI::Channel_handle_t ch_handle = chip_a.request(cfg);
+
+    REQUIRE(spi_1.is_enabled());
+    REQUIRE_FALSE(spi_2.is_enabled());
+    REQUIRE(spi_1.get_byte_count() == b_c{ 0, 0, 0 });
+    REQUIRE(spi_2.get_byte_count() == b_c{ 0, 0, 0 });
+    REQUIRE_FALSE(cs_a.is_selected());
+    REQUIRE_FALSE(cs_b.is_selected());
+    REQUIRE_FALSE(cs_c.is_selected());
+    REQUIRE_FALSE(cs_d.is_selected());
+
+    {
+      WLib::SPI::Connection_handle_t con_handle = ch_handle.select();
+
+      REQUIRE(spi_1.is_enabled());
+      REQUIRE_FALSE(spi_2.is_enabled());
+      REQUIRE(spi_1.get_byte_count() == b_c{ 0, 0, 0 });
+      REQUIRE(spi_2.get_byte_count() == b_c{ 0, 0, 0 });
+      REQUIRE(cs_a.is_selected());
+      REQUIRE_FALSE(cs_b.is_selected());
+      REQUIRE_FALSE(cs_c.is_selected());
+      REQUIRE_FALSE(cs_d.is_selected());
+
+      std::byte buf[128] = {};
+      con_handle.transcieve(nullptr, nullptr, 2);
+      con_handle.transcieve(buf, nullptr, 3);
+      con_handle.transcieve(nullptr, buf, 5);
+      con_handle.transcieve(buf, buf, 7);
+
+      REQUIRE(spi_1.is_enabled());
+      REQUIRE_FALSE(spi_2.is_enabled());
+      REQUIRE(spi_1.get_byte_count() == b_c{ 10, 12, 17 });
+      REQUIRE(spi_2.get_byte_count() == b_c{ 0, 0, 0 });
+      REQUIRE(cs_a.is_selected());
+      REQUIRE_FALSE(cs_b.is_selected());
+      REQUIRE_FALSE(cs_c.is_selected());
+      REQUIRE_FALSE(cs_d.is_selected());
+    }
+    REQUIRE(spi_1.is_enabled());
+    REQUIRE_FALSE(spi_2.is_enabled());
+    REQUIRE(spi_1.get_byte_count() == b_c{ 10, 12, 17 });
+    REQUIRE(spi_2.get_byte_count() == b_c{ 0, 0, 0 });
+    REQUIRE_FALSE(cs_a.is_selected());
+    REQUIRE_FALSE(cs_b.is_selected());
+    REQUIRE_FALSE(cs_c.is_selected());
+    REQUIRE_FALSE(cs_d.is_selected());
+    {
+      WLib::SPI::Connection_handle_t con_handle = ch_handle.select();
+
+      REQUIRE(spi_1.is_enabled());
+      REQUIRE_FALSE(spi_2.is_enabled());
+      REQUIRE(spi_1.get_byte_count() == b_c{ 10, 12, 17 });
+      REQUIRE(spi_2.get_byte_count() == b_c{ 0, 0, 0 });
+      REQUIRE(cs_a.is_selected());
+      REQUIRE_FALSE(cs_b.is_selected());
+      REQUIRE_FALSE(cs_c.is_selected());
+      REQUIRE_FALSE(cs_d.is_selected());
+
+      std::byte buf[128] = {};
+      con_handle.transcieve(nullptr, nullptr, 2);
+      con_handle.transcieve(buf, nullptr, 3);
+      con_handle.transcieve(nullptr, buf, 5);
+      con_handle.transcieve(buf, buf, 7);
+
+      REQUIRE(spi_1.is_enabled());
+      REQUIRE_FALSE(spi_2.is_enabled());
+      REQUIRE(spi_1.get_byte_count() == b_c{ 20, 24, 34 });
+      REQUIRE(spi_2.get_byte_count() == b_c{ 0, 0, 0 });
+      REQUIRE(cs_a.is_selected());
+      REQUIRE_FALSE(cs_b.is_selected());
+      REQUIRE_FALSE(cs_c.is_selected());
+      REQUIRE_FALSE(cs_d.is_selected());
+    }
+  }
+
+  REQUIRE_FALSE(spi_1.is_enabled());
+  REQUIRE_FALSE(spi_2.is_enabled());
+  REQUIRE(spi_1.get_byte_count() == b_c{ 20, 24, 34 });
+  REQUIRE(spi_2.get_byte_count() == b_c{ 0, 0, 0 });
+  REQUIRE_FALSE(cs_a.is_selected());
+  REQUIRE_FALSE(cs_b.is_selected());
+  REQUIRE_FALSE(cs_c.is_selected());
+  REQUIRE_FALSE(cs_d.is_selected());
+
+  {
+    WLib::SPI::Channel_handle_t ch_handle = chip_c.request(cfg);
+
+    REQUIRE_FALSE(spi_1.is_enabled());
+    REQUIRE(spi_2.is_enabled());
+    REQUIRE(spi_1.get_byte_count() == b_c{ 20, 24, 34 });
+    REQUIRE(spi_2.get_byte_count() == b_c{ 0, 0, 0 });
+    REQUIRE_FALSE(cs_a.is_selected());
+    REQUIRE_FALSE(cs_b.is_selected());
+    REQUIRE_FALSE(cs_c.is_selected());
+    REQUIRE_FALSE(cs_d.is_selected());
+
+    {
+      WLib::SPI::Connection_handle_t con_handle = ch_handle.select();
+
+      REQUIRE_FALSE(spi_1.is_enabled());
+      REQUIRE(spi_2.is_enabled());
+      REQUIRE(spi_1.get_byte_count() == b_c{ 20, 24, 34 });
+      REQUIRE(spi_2.get_byte_count() == b_c{ 0, 0, 0 });
+      REQUIRE_FALSE(cs_a.is_selected());
+      REQUIRE_FALSE(cs_b.is_selected());
+      REQUIRE(cs_c.is_selected());
+      REQUIRE_FALSE(cs_d.is_selected());
+
+      std::byte buf[128] = {};
+      con_handle.transcieve(nullptr, nullptr, 2);
+      con_handle.transcieve(buf, nullptr, 3);
+      con_handle.transcieve(nullptr, buf, 5);
+      con_handle.transcieve(buf, buf, 7);
+
+      REQUIRE_FALSE(spi_1.is_enabled());
+      REQUIRE(spi_2.is_enabled());
+      REQUIRE(spi_1.get_byte_count() == b_c{ 20, 24, 34 });
+      REQUIRE(spi_2.get_byte_count() == b_c{ 10, 12, 17 });
+      REQUIRE_FALSE(cs_a.is_selected());
+      REQUIRE_FALSE(cs_b.is_selected());
+      REQUIRE(cs_c.is_selected());
+      REQUIRE_FALSE(cs_d.is_selected());
+    }
+    REQUIRE_FALSE(spi_1.is_enabled());
+    REQUIRE(spi_2.is_enabled());
+    REQUIRE(spi_1.get_byte_count() == b_c{ 20, 24, 34 });
+    REQUIRE(spi_2.get_byte_count() == b_c{ 10, 12, 17 });
+    REQUIRE_FALSE(cs_a.is_selected());
+    REQUIRE_FALSE(cs_b.is_selected());
+    REQUIRE_FALSE(cs_c.is_selected());
+    REQUIRE_FALSE(cs_d.is_selected());
+    {
+      WLib::SPI::Connection_handle_t con_handle = ch_handle.select();
+
+      REQUIRE_FALSE(spi_1.is_enabled());
+      REQUIRE(spi_2.is_enabled());
+      REQUIRE(spi_1.get_byte_count() == b_c{ 20, 24, 34 });
+      REQUIRE(spi_2.get_byte_count() == b_c{ 10, 12, 17 });
+      REQUIRE_FALSE(cs_a.is_selected());
+      REQUIRE_FALSE(cs_b.is_selected());
+      REQUIRE(cs_c.is_selected());
+      REQUIRE_FALSE(cs_d.is_selected());
+
+      std::byte buf[128] = {};
+      con_handle.transcieve(nullptr, nullptr, 2);
+      con_handle.transcieve(buf, nullptr, 3);
+      con_handle.transcieve(nullptr, buf, 5);
+      con_handle.transcieve(buf, buf, 7);
+
+      REQUIRE_FALSE(spi_1.is_enabled());
+      REQUIRE(spi_2.is_enabled());
+      REQUIRE(spi_1.get_byte_count() == b_c{ 20, 24, 34 });
+      REQUIRE(spi_2.get_byte_count() == b_c{ 20, 24, 34 });
+      REQUIRE_FALSE(cs_a.is_selected());
+      REQUIRE_FALSE(cs_b.is_selected());
+      REQUIRE(cs_c.is_selected());
+      REQUIRE_FALSE(cs_d.is_selected());
+    }
+  }
+
+  REQUIRE_FALSE(spi_1.is_enabled());
+  REQUIRE_FALSE(spi_2.is_enabled());
+  REQUIRE(spi_1.get_byte_count() == b_c{ 20, 24, 34 });
+  REQUIRE(spi_2.get_byte_count() == b_c{ 20, 24, 34 });
+  REQUIRE_FALSE(cs_a.is_selected());
+  REQUIRE_FALSE(cs_b.is_selected());
+  REQUIRE_FALSE(cs_c.is_selected());
+  REQUIRE_FALSE(cs_d.is_selected());
+}
+
+TEST_CASE()
+{
+  using b_c = tst_dummy_hw::byte_count_t;
+  tst_dummy_hw                   spi_1;
+  tst_dummy_hw                   spi_2;
+  tst_dummy_cs                   cs_a;
+  tst_dummy_cs                   cs_b;
+  tst_dummy_cs                   cs_c;
+  tst_dummy_cs                   cs_d;
+  WLib::SPI::SPI_configuration_t cfg{ 100 };
+
+  WLib::SPI::Connection_Provider chip_a{ spi_1, cs_a };
+  WLib::SPI::Connection_Provider chip_b{ spi_1, cs_b };
+  WLib::SPI::Connection_Provider chip_c{ spi_2, cs_c };
+  WLib::SPI::Connection_Provider chip_d{ spi_2, cs_d };
+
+  REQUIRE_FALSE(spi_1.is_enabled());
+  REQUIRE_FALSE(spi_2.is_enabled());
+  REQUIRE(spi_1.get_byte_count() == b_c{ 0, 0, 0 });
+  REQUIRE(spi_2.get_byte_count() == b_c{ 0, 0, 0 });
+  REQUIRE_FALSE(cs_a.is_selected());
+  REQUIRE_FALSE(cs_b.is_selected());
+  REQUIRE_FALSE(cs_c.is_selected());
+  REQUIRE_FALSE(cs_d.is_selected());
+
+  {
+    WLib::SPI::Connection_handle_t con_handle = chip_a.request(cfg);
+
+    REQUIRE(spi_1.is_enabled());
+    REQUIRE_FALSE(spi_2.is_enabled());
+    REQUIRE(spi_1.get_byte_count() == b_c{ 0, 0, 0 });
+    REQUIRE(spi_2.get_byte_count() == b_c{ 0, 0, 0 });
+    REQUIRE(cs_a.is_selected());
+    REQUIRE_FALSE(cs_b.is_selected());
+    REQUIRE_FALSE(cs_c.is_selected());
+    REQUIRE_FALSE(cs_d.is_selected());
+
+    std::byte buf[128] = {};
+    con_handle.transcieve(nullptr, nullptr, 2);
+    con_handle.transcieve(buf, nullptr, 3);
+    con_handle.transcieve(nullptr, buf, 5);
+    con_handle.transcieve(buf, buf, 7);
+
+    REQUIRE(spi_1.is_enabled());
+    REQUIRE_FALSE(spi_2.is_enabled());
+    REQUIRE(spi_1.get_byte_count() == b_c{ 10, 12, 17 });
+    REQUIRE(spi_2.get_byte_count() == b_c{ 0, 0, 0 });
+    REQUIRE(cs_a.is_selected());
+    REQUIRE_FALSE(cs_b.is_selected());
+    REQUIRE_FALSE(cs_c.is_selected());
+    REQUIRE_FALSE(cs_d.is_selected());
+  }
+
+  REQUIRE_FALSE(spi_1.is_enabled());
+  REQUIRE_FALSE(spi_2.is_enabled());
+  REQUIRE(spi_1.get_byte_count() == b_c{ 10, 12, 17 });
+  REQUIRE(spi_2.get_byte_count() == b_c{ 0, 0, 0 });
+  REQUIRE_FALSE(cs_a.is_selected());
+  REQUIRE_FALSE(cs_b.is_selected());
+  REQUIRE_FALSE(cs_c.is_selected());
+  REQUIRE_FALSE(cs_d.is_selected());
+ 
+  {
+    WLib::SPI::Connection_handle_t con_handle = chip_b.request(cfg);
+
+    REQUIRE(spi_1.is_enabled());
+    REQUIRE_FALSE(spi_2.is_enabled());
+    REQUIRE(spi_1.get_byte_count() == b_c{ 10, 12, 17 });
+    REQUIRE(spi_2.get_byte_count() == b_c{ 0, 0, 0 });
+    REQUIRE_FALSE(cs_a.is_selected());
+    REQUIRE(cs_b.is_selected());
+    REQUIRE_FALSE(cs_c.is_selected());
+    REQUIRE_FALSE(cs_d.is_selected());
+
+    std::byte buf[128] = {};
+    con_handle.transcieve(nullptr, nullptr, 2);
+    con_handle.transcieve(buf, nullptr, 3);
+    con_handle.transcieve(nullptr, buf, 5);
+    con_handle.transcieve(buf, buf, 7);
+
+    REQUIRE(spi_1.is_enabled());
+    REQUIRE_FALSE(spi_2.is_enabled());
+    REQUIRE(spi_1.get_byte_count() == b_c{ 20, 24, 34 });
+    REQUIRE(spi_2.get_byte_count() == b_c{ 0, 0, 0 });
+    REQUIRE_FALSE(cs_a.is_selected());
+    REQUIRE(cs_b.is_selected());
+    REQUIRE_FALSE(cs_c.is_selected());
+    REQUIRE_FALSE(cs_d.is_selected());
+  }
+  REQUIRE_FALSE(spi_1.is_enabled());
+  REQUIRE_FALSE(spi_2.is_enabled());
+  REQUIRE(spi_1.get_byte_count() == b_c{ 20, 24, 34 });
+  REQUIRE(spi_2.get_byte_count() == b_c{ 0, 0, 0 });
+  REQUIRE_FALSE(cs_a.is_selected());
+  REQUIRE_FALSE(cs_b.is_selected());
+  REQUIRE_FALSE(cs_c.is_selected());
+  REQUIRE_FALSE(cs_d.is_selected());
+  {
+    WLib::SPI::Connection_handle_t con_handle = chip_c.request(cfg);
+
+    REQUIRE_FALSE(spi_1.is_enabled());
+    REQUIRE(spi_2.is_enabled());
+    REQUIRE(spi_1.get_byte_count() == b_c{ 20, 24, 34 });
+    REQUIRE(spi_2.get_byte_count() == b_c{ 0, 0, 0 });
+    REQUIRE_FALSE(cs_a.is_selected());
+    REQUIRE_FALSE(cs_b.is_selected());
+    REQUIRE(cs_c.is_selected());
+    REQUIRE_FALSE(cs_d.is_selected());
+
+    std::byte buf[128] = {};
+    con_handle.transcieve(nullptr, nullptr, 2);
+    con_handle.transcieve(buf, nullptr, 3);
+    con_handle.transcieve(nullptr, buf, 5);
+    con_handle.transcieve(buf, buf, 7);
+
+    REQUIRE_FALSE(spi_1.is_enabled());
+    REQUIRE(spi_2.is_enabled());
+    REQUIRE(spi_1.get_byte_count() == b_c{ 20, 24, 34 });
+    REQUIRE(spi_2.get_byte_count() == b_c{ 10, 12, 17 });
+    REQUIRE_FALSE(cs_a.is_selected());
+    REQUIRE_FALSE(cs_b.is_selected());
+    REQUIRE(cs_c.is_selected());
+    REQUIRE_FALSE(cs_d.is_selected());
+  }
+  REQUIRE_FALSE(spi_1.is_enabled());
+  REQUIRE_FALSE(spi_2.is_enabled());
+  REQUIRE(spi_1.get_byte_count() == b_c{ 20, 24, 34 });
+  REQUIRE(spi_2.get_byte_count() == b_c{ 10, 12, 17 });
+  REQUIRE_FALSE(cs_a.is_selected());
+  REQUIRE_FALSE(cs_b.is_selected());
+  REQUIRE_FALSE(cs_c.is_selected());
+  REQUIRE_FALSE(cs_d.is_selected());
+  {
+    WLib::SPI::Connection_handle_t con_handle = chip_d.request(cfg);
+
+    REQUIRE_FALSE(spi_1.is_enabled());
+    REQUIRE(spi_2.is_enabled());
+    REQUIRE(spi_1.get_byte_count() == b_c{ 20, 24, 34 });
+    REQUIRE(spi_2.get_byte_count() == b_c{ 10, 12, 17 });
+    REQUIRE_FALSE(cs_a.is_selected());
+    REQUIRE_FALSE(cs_b.is_selected());
+    REQUIRE_FALSE(cs_c.is_selected());
+    REQUIRE(cs_d.is_selected());
+
+    std::byte buf[128] = {};
+    con_handle.transcieve(nullptr, nullptr, 2);
+    con_handle.transcieve(buf, nullptr, 3);
+    con_handle.transcieve(nullptr, buf, 5);
+    con_handle.transcieve(buf, buf, 7);
+
+    REQUIRE_FALSE(spi_1.is_enabled());
+    REQUIRE(spi_2.is_enabled());
+    REQUIRE(spi_1.get_byte_count() == b_c{ 20, 24, 34 });
+    REQUIRE(spi_2.get_byte_count() == b_c{ 20, 24, 34 });
+    REQUIRE_FALSE(cs_a.is_selected());
+    REQUIRE_FALSE(cs_b.is_selected());
+    REQUIRE_FALSE(cs_c.is_selected());
+    REQUIRE(cs_d.is_selected());
+  }
+  REQUIRE_FALSE(spi_1.is_enabled());
+  REQUIRE_FALSE(spi_2.is_enabled());
+  REQUIRE(spi_1.get_byte_count() == b_c{ 20, 24, 34 });
+  REQUIRE(spi_2.get_byte_count() == b_c{ 20, 24, 34 });
+  REQUIRE_FALSE(cs_a.is_selected());
+  REQUIRE_FALSE(cs_b.is_selected());
+  REQUIRE_FALSE(cs_c.is_selected());
+  REQUIRE_FALSE(cs_d.is_selected());
+}
