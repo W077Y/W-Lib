@@ -38,7 +38,7 @@ template <typename T> class sub_handle_t: public WLib::Subscriber_Interface<T>
 {
 public:
   sub_handle_t(WLib::Subscription_Interface<T>& parent)
-      : Subscriber_Interface(parent)
+      : WLib::Subscriber_Interface<T>(parent)
   {
   }
 
@@ -60,6 +60,7 @@ private:
 
 #include <chrono>
 #include <thread>
+#include <atomic>
 
 puplisher_t<int>& func()
 {
