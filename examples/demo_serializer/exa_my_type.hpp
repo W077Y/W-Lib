@@ -1,6 +1,6 @@
 #pragma once
 #ifndef EXA_MY_TYPE_HPP
-#define	EXA_MY_TYPE_HPP
+#define EXA_MY_TYPE_HPP
 
 #include <cstdint>
 
@@ -15,7 +15,10 @@ public:
   {
   }
 
-  constexpr uint64_t get_value() const { return this->m_a + this->m_b + this->m_c + this->m_d; }
+  constexpr uint64_t get_value() const
+  {
+    return static_cast<uint64_t>(this->m_a) + static_cast<uint64_t>(this->m_b) + static_cast<uint64_t>(this->m_c) + static_cast<uint64_t>(this->m_d);
+  }
 
   char     m_a;
   uint32_t m_b;
