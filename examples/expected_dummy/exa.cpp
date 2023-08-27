@@ -1,146 +1,260 @@
 #include <exception>
+#include <expected>
 #include <iostream>
 #include <new>
 #include <optional>
 
-class error_t final
+namespace std
+{
+}    // namespace std
+
+namespace t
+{
+  struct unexpected_t
+  {
+    explicit unexpected_t() = default;
+  };
+  inline constexpr unexpected_t unexpected{};
+  
+  template <typename T, typename U> class expected_t;
+
+  template <typename T, typename U> class expected_t
+  {
+  public:
+    using value_type                                                  = T;
+    using unexpected_type                                             = U;
+    template <typename Ts> static constexpr bool is_move_or_copy_able = std::is_move_constructible_v<Ts> || std::is_copy_constructible_v<Ts>;
+
+    template <typename... Ts, typename = std::enable_if_t<std::is_constructible_v<value_type, Ts...>>>
+    constexpr expected_t(Ts&&... args)
+        : m_is_expected(true)
+    {
+      std::cout << " ex_val_const_ref_ctor_" << this;
+      new (&this->m_value) value_type{ std::forward<Ts>(args)... };
+    }
+
+    template <typename... Ts, typename = std::enable_if_t<std::is_constructible_v<unexpected_type, Ts...>>>
+    constexpr expected_t(unexpected_t, Ts&&... args)
+        : m_is_expected(false)
+    {
+      std::cout << " ex_val_const_ref_ctor_" << this;
+      new (&this->m_unexpected) unexpected_type{ std::forward<Ts>(args)... };
+    }
+
+    ~expected_t()
+    {
+      if (this->m_is_expected)
+      {
+        this->m_value.~value_type();
+      }
+      else
+      {
+        this->m_unexpected.~unexpected_type();
+      }
+      std::cout << " ex_dtor_" << this;
+    }
+
+    constexpr bool has_value() const { return this->m_is_expected; }
+
+    constexpr value_type& value() &
+    {
+      std::cout << " & ";
+      if (this->m_is_expected)
+      {
+        return this->m_value;
+      }
+
+      throw this->m_unexpected.message();
+    }
+
+    constexpr value_type const& value() const&
+    {
+      std::cout << " const& ";
+      if (this->m_is_expected)
+      {
+        return this->m_value;
+      }
+
+      throw this->m_unexpected.message();
+    }
+
+    constexpr value_type&& value() &&
+    {
+      std::cout << " && ";
+      if (this->m_is_expected)
+      {
+        return std::move(this->m_value);
+      }
+
+      throw this->m_unexpected.message();
+    }
+
+    constexpr value_type const&& value() const&&
+    {
+      std::cout << " const && ";
+      if (this->m_is_expected)
+      {
+        return std::move(this->m_value);
+      }
+
+      throw this->m_unexpected.message();
+    }
+
+    constexpr unexpected_type const& error() const&
+    {
+      std::cout << " const& ";
+      if (!this->m_is_expected)
+      {
+        return this->m_unexpected;
+      }
+
+      throw this->m_unexpected.message();
+    }
+
+    constexpr unexpected_type const&& error() const&&
+    {
+      std::cout << " const& ";
+      if (!this->m_is_expected)
+      {
+        return std::move(this->m_unexpected);
+      }
+
+      throw this->m_unexpected.message();
+    }
+
+  private:
+    union
+    {
+      value_type      m_value;
+      unexpected_type m_unexpected;
+    };
+    bool m_is_expected;
+  };
+
+}    // namespace t
+
+int value_to_get = 5;
+
+class test_type
 {
 public:
-  static constexpr error_t get_no_error() { return error_t{}; }
+  test_type(int& x)
+      : m_val(x)
+  {
+    std::cout << " test_ctor_" << this;
+  };
 
-  explicit constexpr error_t(char const* msg)
+  test_type(test_type const& rhs)        = delete;
+  test_type(test_type&& rhs) noexcept    = delete;
+  test_type& operator=(test_type const&) = delete;
+  test_type& operator=(test_type&&)      = delete;
+
+  ~test_type() { std::cout << " test_dtor_" << this; }
+
+  int get() const
+  {
+    std::cout << " get_" << this << " ";
+    return this->m_val;
+  }
+
+private:
+  int& m_val;
+};
+
+class error_t
+{
+public:
+  error_t(char const* msg)
       : m_msg(msg)
   {
+    std::cout << " error_ctor_" << this;
   }
 
-  bool                  is_no_error() const { return this->m_msg == nullptr; }
-  constexpr char const* get_msg() const { return this->m_msg; }
+  error_t(error_t const&)            = delete;
+  error_t(error_t&&)                 = delete;
+  error_t& operator=(error_t const&) = delete;
+  error_t& operator=(error_t&&)      = delete;
+
+  ~error_t() { std::cout << " error_dtor_" << this; }
+
+  char const* message() const { return this->m_msg; }
 
 private:
-  explicit constexpr error_t() = default;
-
-  char const* m_msg = nullptr;
+  char const* m_msg;
 };
 
-class error_exception final: public std::exception
+t::expected_t<test_type, error_t> fnc(int const& i)
 {
-public:
-  error_exception(error_t const& err)
-      : m_msg(err.get_msg())
+  if (i < 0)
+    return { t::unexpected, "error a" };
+  if (i < 2)
   {
+    return { value_to_get };
   }
-
-  virtual char const* what() const override { return this->m_msg; }
-
-private:
-  char const* m_msg = nullptr;
-};
-
-error_t const no_err = error_t::get_no_error();
-
-template <typename T> class ret_t
-{
-public:
-  constexpr ret_t(error_t const& err)
-      : m_err(err)
-      , m_val{}
-  {
-  }
-
-  constexpr ret_t(T const& val) { new (this->m_val) T(val); }
-  constexpr ret_t(T&& val) { new (this->m_val) T(val); }
-
-  template <typename... Ts> constexpr ret_t(std::in_place_t, Ts&&... args) { new (this->m_val) T(args...); }
-
-  ~ret_t()
-  {
-    if (this->has_value())
-    {
-      reinterpret_cast<T*>(this->m_val)->~T();
-    }
-  }
-
-  bool    has_value() const { return this->m_err.is_no_error(); }
-  error_t get_err() const { return this->m_err; }
-
-  T const& value() const&
-  {
-    if (this->m_err.is_no_error())
-      return *reinterpret_cast<T const*>(this->m_val);
-    throw error_exception(this->m_err);
-  }
-
-  T get_value() const&&
-  {
-    if (this->m_err.is_no_error())
-      return *reinterpret_cast<T const*>(this->m_val);
-    throw error_exception(this->m_err);
-  }
-
-private:
-  error_t m_err = no_err;
-  alignas(T) char m_val[sizeof(T)];
-};
-
-error_t err_a{ "err a" };
-
-struct MyStruct
-{
-  MyStruct(char const* val)
-      : val(val)
-  {
-    std::cout << "ctor ";
-  }
-
-  MyStruct(MyStruct const& val) = delete;
-  MyStruct(MyStruct&& val)      = delete;
-
-  ~MyStruct() { std::cout << "dtor "; }
-
-  char const* val;
-};
-
-ret_t<MyStruct> fnc(int i)
-{
-  if (i > 0)
-    return { std::in_place, "gut" };
-  return err_a;
+  return { t::unexpected, "error b" };
 }
 
-// std::optional<MyStruct> fnc(int i)
-//{
-//   if (i > 0)
-//     return { "gut" };
-//   return std::nullopt;
-// }
+std::optional<test_type> fnc2(int const& i)
+{
+  if (i < 0)
+    return std::nullopt;
+  if (i < 5)
+    return { value_to_get };
+  return std::nullopt;
+}
 
 int main()
 {
-  try
+  std::cout << "copy const:" << std::is_copy_constructible_v<test_type> << std::endl;
+  std::cout << "move const:" << std::is_move_constructible_v<test_type> << std::endl;
+
   {
-    std::cout << fnc(2).value().val << std::endl;
-
-    if (auto val = fnc(2); val.has_value())
-    {
-      char const* txt = val.value().val;
-      std::cout << txt << std::endl;
-    }
-    else
-    {
-      std::cout << "ret_err " << val.get_err().get_msg() << std::endl;
-    }
-
-    if (auto val = fnc(-3); val.has_value())
-      std::cout << val.value().val << std::endl;
-    else
-    {
-      std::cout << "ret_err " << val.get_err().get_msg() << std::endl;
-    }
-
-    std::cout << fnc(-2).value().val << std::endl;
+    auto&& aaa = fnc2(0).value();
+    aaa.get();
   }
-  catch (std::exception& ex)
+  std::cout << std::endl;
+
+  using T = t::expected_t<test_type, error_t>;
+  for (int idx = -5; idx < 10; idx++)
   {
-    std::cout << "catch_err " << ex.what() << std::endl;
+    std::cout << idx << ": ";
+    {
+      auto tmp = fnc(idx);
+      if (tmp.has_value())
+      {
+        std::cout << " has_value " << tmp.value().get() << std::endl;
+      }
+      else
+      {
+        std::cout << " has_error " << tmp.error().message() << std::endl;
+      }
+    }
+    std::cout << std::endl;
+  }
+  std::cout << "########" << std::endl;
+  for (int idx = 0; idx < 10; idx++)
+  {
+    std::cout << idx << ": ";
+    {
+      try
+      {
+        std::cout << " : ";
+        {
+          auto&& tmp = fnc(idx).value();
+          std::cout << " has_value ";
+          std::cout << tmp.get();
+        }
+        std::cout << " : " << std::endl;
+      }
+      catch (char const* msg)
+      {
+        std::cout << " throw " << msg << std::endl;
+      }
+      catch (...)
+      {
+        std::cout << " throw " << std::endl;
+      }
+    }
+    std::cout << std::endl;
   }
 }
