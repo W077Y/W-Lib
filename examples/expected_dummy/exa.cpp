@@ -1,8 +1,8 @@
 #include <exception>
-#include <expected>
+//#include <expected>
 #include <iostream>
 #include <new>
-#include <optional>
+//#include <optional>
 
 namespace std
 {
@@ -10,20 +10,17 @@ namespace std
 
 namespace t
 {
-  struct unexpected_t
+  struct unexpected_tag
   {
-    explicit unexpected_t() = default;
+    explicit unexpected_tag() = default;
   };
-  inline constexpr unexpected_t unexpected{};
-  
-  template <typename T, typename U> class expected_t;
+  inline constexpr unexpected_tag unexpected{};
 
   template <typename T, typename U> class expected_t
   {
   public:
-    using value_type                                                  = T;
-    using unexpected_type                                             = U;
-    template <typename Ts> static constexpr bool is_move_or_copy_able = std::is_move_constructible_v<Ts> || std::is_copy_constructible_v<Ts>;
+    using value_type      = T;
+    using unexpected_type = U;
 
     template <typename... Ts, typename = std::enable_if_t<std::is_constructible_v<value_type, Ts...>>>
     constexpr expected_t(Ts&&... args)
@@ -34,7 +31,7 @@ namespace t
     }
 
     template <typename... Ts, typename = std::enable_if_t<std::is_constructible_v<unexpected_type, Ts...>>>
-    constexpr expected_t(unexpected_t, Ts&&... args)
+    constexpr expected_t(unexpected_tag, Ts&&... args)
         : m_is_expected(false)
     {
       std::cout << " ex_val_const_ref_ctor_" << this;
@@ -194,24 +191,24 @@ t::expected_t<test_type, error_t> fnc(int const& i)
   return { t::unexpected, "error b" };
 }
 
-std::optional<test_type> fnc2(int const& i)
-{
-  if (i < 0)
-    return std::nullopt;
-  if (i < 5)
-    return { value_to_get };
-  return std::nullopt;
-}
+//std::optional<test_type> fnc2(int const& i)
+//{
+//  if (i < 0)
+//    return std::nullopt;
+//  if (i < 5)
+//    return { value_to_get };
+//  return std::nullopt;
+//}
 
 int main()
 {
   std::cout << "copy const:" << std::is_copy_constructible_v<test_type> << std::endl;
   std::cout << "move const:" << std::is_move_constructible_v<test_type> << std::endl;
 
-  {
-    auto&& aaa = fnc2(0).value();
-    aaa.get();
-  }
+  //{
+  //  auto&& aaa = fnc2(0).value();
+  //  aaa.get();
+  //}
   std::cout << std::endl;
 
   using T = t::expected_t<test_type, error_t>;
