@@ -11,6 +11,7 @@ add_subdirectory("./demo_crc")
 add_subdirectory("./demo_callback_interface")
 add_subdirectory("./expected_dummy")
 add_subdirectory("./spsc_queue")
+add_subdirectory("./static_vector")
 
 
 
