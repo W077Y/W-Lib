@@ -13,7 +13,7 @@ target_sources(${target_name}
 	PRIVATE "${CMAKE_CURRENT_LIST_DIR}/exa_callback_interface.cpp"
 )
 
-target_link_libraries(${target_name} PUBLIC WLIB_CALLBACK_INTERFACE)
+target_link_libraries(${target_name} PUBLIC WLIB)
 
 add_test(${target_name} ${target_name})
 

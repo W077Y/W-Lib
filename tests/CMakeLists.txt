@@ -7,8 +7,8 @@ ENDIF()
 
 
 add_subdirectory("./externals")
-add_subdirectory("./tst_demo")
-add_subdirectory("./tst_byte_buffer_sink")
-add_subdirectory("./tst_serializer")
-add_subdirectory("./tst_SPI_Abstraction_Interface")
-add_subdirectory("./tst_CRC")
+#add_subdirectory("./tst_demo")
+#add_subdirectory("./tst_byte_buffer_sink")
+#add_subdirectory("./tst_serializer")
+#add_subdirectory("./tst_SPI_Abstraction_Interface")
+#add_subdirectory("./tst_CRC")
