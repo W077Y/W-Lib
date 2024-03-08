@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required (VERSION 3.15)
 
-set(target_name "WLIB_UTILITY")
+set(target_name "WLIB_CONTAINER")
 
 IF(DEFINED sub_dir_tree_val)
 	MESSAGE_TREEVIEW(${target_name})
@@ -9,8 +9,8 @@ ENDIF()
 add_library(${target_name} STATIC)
 
 target_sources(${target_name}
-	PUBLIC ${CMAKE_CURRENT_LIST_DIR}/inc/WLib_Utility.hpp
-	PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/WLib_Utility.cpp
+	PUBLIC ${CMAKE_CURRENT_LIST_DIR}/inc/WLib_SPSC.hpp
+	PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/WLib_container.cpp
 	)
 
 target_include_directories(	${target_name}

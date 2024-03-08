@@ -17,7 +17,7 @@ target_sources(${target_name}
 
 add_test(${target_name} ${target_name})
 
-target_compile_features(${target_name} PUBLIC cxx_std_17)
+target_compile_features(${target_name} PUBLIC cxx_std_20)
 
 
 

@@ -19,6 +19,6 @@ target_include_directories(	${target_name}
 target_link_libraries(${target_name} PUBLIC WLIB_BYTE_SINK)
 
 
-target_compile_features(${target_name} PUBLIC cxx_std_17)
+target_compile_features(${target_name} PUBLIC cxx_std_20)
 
 

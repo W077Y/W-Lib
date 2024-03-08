@@ -32,4 +32,4 @@ target_sources(${target_name}
 	PRIVATE	"${CMAKE_CURRENT_LIST_DIR}/src/crc_64_go_iso.hpp"
 	PRIVATE	"${CMAKE_CURRENT_LIST_DIR}/src/crc_64_go_iso.cpp"
 )
-target_compile_features(${target_name} PUBLIC cxx_std_17)
+target_compile_features(${target_name} PUBLIC cxx_std_20)

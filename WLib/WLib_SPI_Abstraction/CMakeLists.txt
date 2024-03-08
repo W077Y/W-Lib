@@ -18,7 +18,7 @@ target_sources(${target_name}
 target_include_directories(	${target_name}
 	PUBLIC  "${CMAKE_CURRENT_LIST_DIR}")
 
-target_compile_features(${target_name} PUBLIC cxx_std_17)
+target_compile_features(${target_name} PUBLIC cxx_std_20)
 
 target_link_libraries(${target_name} PUBLIC WLIB_UTILITY)
 

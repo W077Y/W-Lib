@@ -19,5 +19,5 @@ target_sources(${target_name}
 target_include_directories(	${target_name}
 	PUBLIC  "${CMAKE_CURRENT_LIST_DIR}")
 
-target_compile_features(${target_name} PUBLIC cxx_std_17)
+target_compile_features(${target_name} PUBLIC cxx_std_20)
 

@@ -13,11 +13,11 @@ target_sources(${target_name}
 	PRIVATE "${CMAKE_CURRENT_LIST_DIR}/exa.cpp"
 )
 
-#target_link_libraries(${target_name} PUBLIC WLIB)
+target_link_libraries(${target_name} PUBLIC WLIB_CONTAINER)
 
 add_test(${target_name} ${target_name})
 
-target_compile_features(${target_name} PUBLIC cxx_std_17)
+target_compile_features(${target_name} PUBLIC cxx_std_20)
 
 
 
