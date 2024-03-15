@@ -1,8 +1,8 @@
 #pragma once
-#ifndef WLIB_BYTE_BUFFER_SINK_HPP
-#define WLIB_BYTE_BUFFER_SINK_HPP
+#ifndef WLIB_BYTE_SINK_BUFFER_HPP
+#define WLIB_BYTE_SINK_BUFFER_HPP
 
-#include <WLib_Byte_Sink_Concept.hpp>
+#include <WLib_Concepts.hpp>
 #include <cstddef>
 #include <cstdint>
 #include <type_traits>
@@ -64,8 +64,8 @@ namespace WLib
     std::byte*       m_c;
   };
 
-  static_assert(is_byte_sink_v<byte_buffer_sink_t>);
-  static_assert(is_byte_source_v<byte_buffer_source_t>);
+  static_assert(WLib::Concepts::Byte_Sink<byte_buffer_sink_t>);
+  static_assert(WLib::Concepts::Byte_Source<byte_buffer_source_t>);
 }    // namespace WLib
 
 
