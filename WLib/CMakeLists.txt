@@ -35,8 +35,6 @@ target_sources(${target_name}
 	PUBLIC ${CMAKE_CURRENT_LIST_DIR}/inc/WLib_Byte_Sink_Buffer.hpp
 	)
 
-
-
 message(STATUS "${sub_dir_tree_val}CALLBACK_INTERFACE")
 target_sources(${target_name}
 	PUBLIC ${CMAKE_CURRENT_LIST_DIR}/inc/WLib_Callback_Interface.hpp
@@ -47,10 +45,20 @@ target_sources(${target_name}
 	PUBLIC ${CMAKE_CURRENT_LIST_DIR}/inc/WLib_SPSC.hpp
 	)
 
-message(STATUS "${sub_dir_tree_val}OS")
-target_sources(${target_name}
-	PUBLIC ${CMAKE_CURRENT_LIST_DIR}/inc/WLib_OS.hpp
-	)
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL  "Windows")
+	message(STATUS "${sub_dir_tree_val}OS")
+	target_include_directories(	${target_name}
+		PUBLIC  "${CMAKE_CURRENT_LIST_DIR}/port/PC/inc"
+		)
+	target_sources(${target_name}
+		PUBLIC ${CMAKE_CURRENT_LIST_DIR}/port/PC/inc/WLib_OS.hpp
+		)
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL  "Generic")
+	message(SEND_ERROR "missing OS port")
+else()
+	message(SEND_ERROR "missing OS port")
+endif()
 
 
 message(STATUS "${sub_dir_tree_val}UTILITY")
@@ -62,6 +70,7 @@ target_sources(${target_name}
 target_sources(${target_name}
 	PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/WLib.cpp
 	)
+	
 
 target_compile_features(${target_name} PUBLIC cxx_std_20)
 
