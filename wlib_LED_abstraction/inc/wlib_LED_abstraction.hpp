@@ -15,7 +15,7 @@ namespace wlib::abstraction
     virtual void toggle()    = 0;
   };
 
-  class LED_PIN final: private LED_Interface
+  class LED_PIN final: public LED_Interface
   {
   public:
     LED_PIN(Digital_Output_Interface& pin)
@@ -44,7 +44,7 @@ namespace wlib::abstraction
     virtual void set_state(State const&) = 0;
   };
 
-  class TrafficLight_PIN final: private TrafficLight_Interface
+  class TrafficLight_PIN final: public TrafficLight_Interface
   {
   public:
     TrafficLight_PIN(Digital_Output_Interface& pin_red, Digital_Output_Interface& pin_yellow, Digital_Output_Interface& pin_green)

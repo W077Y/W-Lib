@@ -17,7 +17,7 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL  "Generic")
 		 PUBLIC  "${CMAKE_CURRENT_LIST_DIR}/inc_FreeRTOS"
 		)
 		target_sources(${target_name}
-		 PUBLIC "${CMAKE_CURRENT_LIST_DIR}/src_FreeRTOS/WLib_OS.cpp"
+		 PUBLIC "${CMAKE_CURRENT_LIST_DIR}/src_FreeRTOS/wlib_OS.cpp"
 		)
 		target_link_libraries(${target_name} PUBLIC freertos_kernel)
 	elseif(${CMAKE_OS_NAME} STREQUAL "no-OS")
@@ -25,7 +25,7 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL  "Generic")
 		 PUBLIC  "${CMAKE_CURRENT_LIST_DIR}/inc_no_OS"
 		)
 		target_sources(${target_name}
-		 PUBLIC "${CMAKE_CURRENT_LIST_DIR}/src_no_OS/WLib_no_OS.cpp"
+		 PUBLIC "${CMAKE_CURRENT_LIST_DIR}/src_no_OS/wlib_no_OS.cpp"
 		)
 	else()
 		message(SEND_ERROR "missing OS port")
@@ -35,6 +35,6 @@ else()
 endif()
 
 target_sources(${target_name}
- PUBLIC "${CMAKE_CURRENT_LIST_DIR}/src/WLib_OS.cpp"
+ PUBLIC "${CMAKE_CURRENT_LIST_DIR}/src/wlib_OS.cpp"
 )
 

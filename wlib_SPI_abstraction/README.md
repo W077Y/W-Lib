@@ -6,7 +6,7 @@
 
 ### `Connection_Interface`
 
-  `WLib::SPI::Connection_Interface` stellt das abstrakte Interface für eine SPI Verbindung dar.
+  `wlib::SPI::Connection_Interface` stellt das abstrakte Interface für eine SPI Verbindung dar.
   Mit `transcieve` können Daten zum/vom SPI-Peripheral gesendet/empfangen werden.
 
   #### Usecases:

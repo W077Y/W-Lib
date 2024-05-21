@@ -13,5 +13,5 @@ target_sources(${target_name}
 )
 
 target_sources(${target_name}
- PRIVATE "${CMAKE_CURRENT_LIST_DIR}/src/WLib_Container.cpp"
+ PRIVATE "${CMAKE_CURRENT_LIST_DIR}/src/wlib_container.cpp"
 )

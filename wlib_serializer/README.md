@@ -1,4 +1,3 @@
-
 # WLib Serializer
 
 The WLib Serializer is a header-only C++ library designed for serialization and deserialization of a wide range of data types, emphasizing ease of use, efficiency, and flexibility.
