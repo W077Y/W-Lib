@@ -12,12 +12,12 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL  "Windows" OR ${CMAKE_SYSTEM_NAME} STREQUAL "Li
 	 PUBLIC  "${CMAKE_CURRENT_LIST_DIR}/inc_PC"
 	)
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL  "Generic")
-	if (${CMAKE_OS_NAME} STREQUAL "FreeRTOS")
+	if (${CMAKE_OS_NAME} STREQUAL "FreeRTOS" AND ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "STM32H753xx")
 		target_include_directories(	${target_name}
 		 PUBLIC  "${CMAKE_CURRENT_LIST_DIR}/inc_FreeRTOS"
 		)
 		target_sources(${target_name}
-		 PUBLIC "${CMAKE_CURRENT_LIST_DIR}/src_FreeRTOS/wlib_OS.cpp"
+		 PUBLIC "${CMAKE_CURRENT_LIST_DIR}/src_FreeRTOS_CORTEX-M7/wlib_OS_port.cpp"
 		)
 		target_link_libraries(${target_name} PUBLIC freertos_kernel)
 	elseif(${CMAKE_OS_NAME} STREQUAL "no-OS")
@@ -36,5 +36,9 @@ endif()
 
 target_sources(${target_name}
  PUBLIC "${CMAKE_CURRENT_LIST_DIR}/src/wlib_OS.cpp"
+)
+
+target_link_libraries(${target_name}
+ PUBLIC WLIB_CALLBACK
 )
 
