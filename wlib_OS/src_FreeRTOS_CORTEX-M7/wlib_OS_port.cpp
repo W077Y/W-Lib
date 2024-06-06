@@ -70,7 +70,8 @@ namespace os
   void Task::task_handle(void* obj)
   {
     Task& self = *reinterpret_cast<Task*>(obj);
-    reinterpret_cast<wlib::Callback<void()>*>(&self.m_obj_mem[0])->operator()();
+    wlib::Callback<void()>* tmp  = reinterpret_cast<wlib::Callback<void()>*>((void*)self.m_obj_mem);
+    tmp->operator()();
     vTaskDelete(nullptr);
   }
 

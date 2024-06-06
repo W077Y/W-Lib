@@ -53,6 +53,15 @@ namespace os
       this->handle = create_task(name, min_stack_size_bytes, *this);
     }
 
+    template <typename T> Task(char const* name, uint32_t const& min_stack_size_bytes, wlib::Memberfunction_Callback<T, void()>& handle)
+    {
+      if (new (&this->m_obj_mem[0]) wlib::Memberfunction_Callback<T, void()>(handle) == nullptr)
+      {
+        // TODO: error
+      }
+      this->handle = create_task(name, min_stack_size_bytes, *this);
+    }
+
   private:
     void*    handle = nullptr;
     uint32_t m_obj_mem[10]{};
@@ -102,9 +111,9 @@ namespace os
       }
     }
 
-    void acquire() { xSemaphoreTake(this->m_handle, portMAX_DELAY); }
+    void acquire() { xSemaphoreTake((QueueHandle_t)this->m_handle, portMAX_DELAY); }
 
-    bool try_acquire() { return xSemaphoreTake(this->m_handle, pdMS_TO_TICKS(0)) == pdTRUE; }
+    bool try_acquire() { return xSemaphoreTake((QueueHandle_t)this->m_handle, pdMS_TO_TICKS(0)) == pdTRUE; }
 
     template <class Rep, class Period> bool try_acquire_for(const std::chrono::duration<Rep, Period>& rel_time);
 
@@ -115,6 +124,60 @@ namespace os
   };
 
   using binary_semaphore = counting_semaphore<1>;
+
+  class mutex
+  {
+  public:
+    mutex()
+        : m_handle(xSemaphoreCreateMutex())
+    {
+    }
+    ~mutex() { vSemaphoreDelete(this->m_handle); }
+
+    void lock() { xSemaphoreTake((QueueHandle_t)this->m_handle, portMAX_DELAY); }
+    bool try_lock() { return xSemaphoreTake((QueueHandle_t)this->m_handle, pdMS_TO_TICKS(0)) == pdTRUE; }
+    void unlock() { xSemaphoreGive(this->m_handle); }
+
+  private:
+    void* m_handle = {};
+  };
+
+  class recursive_mutex
+  {
+  public:
+    recursive_mutex()
+        : m_handle(xSemaphoreCreateRecursiveMutex())
+    {
+    }
+    ~recursive_mutex() { vSemaphoreDelete(this->m_handle); }
+
+    void lock() { xSemaphoreTakeRecursive((QueueHandle_t)this->m_handle, portMAX_DELAY); }
+    bool try_lock() { return xSemaphoreTakeRecursive((QueueHandle_t)this->m_handle, pdMS_TO_TICKS(0)) == pdTRUE; }
+    void unlock() { xSemaphoreGiveRecursive((QueueHandle_t)this->m_handle); }
+
+  private:
+    void* m_handle = {};
+  };
+
+  template <typename T> class lock_guard
+  {
+  public:
+    lock_guard(T& mutex)
+        : m_tex{ mutex }
+    {
+      this->m_tex.lock();
+    }
+
+    lock_guard(lock_guard const&)            = delete;
+    lock_guard(lock_guard&&)                 = delete;
+    lock_guard& operator=(lock_guard const&) = delete;
+    lock_guard& operator=(lock_guard&&)      = delete;
+
+    ~lock_guard() { this->m_tex.unlock(); }
+
+  private:
+    T& m_tex;
+  };
 }    // namespace os
 
 #endif

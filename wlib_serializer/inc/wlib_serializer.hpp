@@ -133,11 +133,12 @@ namespace wlib
       return true;
     }
 
-    [[nodiscard]] constexpr std::byte*       begin() const { return this->m_b; }
+    [[nodiscard]] constexpr std::byte*       begin() { return this->m_b; }
     [[nodiscard]] constexpr std::byte const* cbegin() const { return this->m_b; }
     [[nodiscard]] constexpr std::byte const* end() const { return this->m_c; }
     [[nodiscard]] constexpr std::byte const* cend() const { return this->m_c; }
 
+    [[nodiscard]] constexpr std::byte* pos() const { return this->m_c; }
     [[nodiscard]] constexpr std::size_t get_number_of_used_bytes() const { return this->m_c - this->m_b; }
     [[nodiscard]] constexpr std::size_t get_number_of_remaining_bytes() const { return this->m_e - this->m_c; }
     [[nodiscard]] constexpr std::size_t get_total_number_of_bytes() const { return this->m_e - this->m_b; }
@@ -253,7 +254,7 @@ namespace wlib
       return true;
     }
 
-    [[nodiscard]] constexpr std::byte*       begin() const { return this->m_data; }
+    [[nodiscard]] constexpr std::byte*       begin() { return this->m_data; }
     [[nodiscard]] constexpr std::byte const* cbegin() const { return this->m_data; }
     [[nodiscard]] constexpr std::byte const* end() const { return this->m_c; }
     [[nodiscard]] constexpr std::byte const* cend() const { return this->m_c; }
