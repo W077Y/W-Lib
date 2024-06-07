@@ -8,6 +8,7 @@ namespace wlib
   template <typename R, typename... Args> class Callback<R(Args...)>
   {
   public:
+    using signature_t = R(Args...);
     virtual ~Callback() = default;
 
     virtual R operator()(Args...) = 0;
