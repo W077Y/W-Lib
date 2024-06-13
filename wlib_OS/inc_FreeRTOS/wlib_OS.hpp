@@ -115,7 +115,20 @@ namespace os
 
     bool try_acquire() { return xSemaphoreTake((QueueHandle_t)this->m_handle, pdMS_TO_TICKS(0)) == pdTRUE; }
 
-    template <class Rep, class Period> bool try_acquire_for(const std::chrono::duration<Rep, Period>& rel_time);
+    template <class Rep, class Period> bool try_acquire_for(const std::chrono::duration<Rep, Period>& rel_time)
+    {
+      int64_t val = std::chrono::duration_cast<std::chrono::milliseconds>(rel_time).count();
+      constexpr int64_t max_time = portMAX_DELAY - 1;
+      
+      
+      while (val > max_time)
+      {
+        val -= max_time;
+        if (xSemaphoreTake((QueueHandle_t)this->m_handle, pdMS_TO_TICKS(max_time)) == pdTRUE)
+          return true;
+      }
+      return xSemaphoreTake((QueueHandle_t)this->m_handle, pdMS_TO_TICKS(val)) == pdTRUE;
+    }
 
     template <class Clock, class Duration> bool try_acquire_until(const std::chrono::time_point<Clock, Duration>& abs_time);
 
