@@ -61,7 +61,7 @@ extern "C" void vApplicationTickHook()
 
 extern "C" void start_os(void (*handle)(void*))
 {
-  xTaskCreate(handle, "main", 1024, nullptr, tskIDLE_PRIORITY, nullptr);
+  xTaskCreate(handle, "main", 4096, nullptr, tskIDLE_PRIORITY, nullptr);
   vTaskStartScheduler();
 }
 

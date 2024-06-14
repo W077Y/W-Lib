@@ -138,7 +138,7 @@ namespace wlib
     [[nodiscard]] constexpr std::byte const* end() const { return this->m_c; }
     [[nodiscard]] constexpr std::byte const* cend() const { return this->m_c; }
 
-    [[nodiscard]] constexpr std::byte* pos() const { return this->m_c; }
+    [[nodiscard]] constexpr std::byte*  pos() const { return this->m_c; }
     [[nodiscard]] constexpr std::size_t get_number_of_used_bytes() const { return this->m_c - this->m_b; }
     [[nodiscard]] constexpr std::size_t get_number_of_remaining_bytes() const { return this->m_e - this->m_c; }
     [[nodiscard]] constexpr std::size_t get_total_number_of_bytes() const { return this->m_e - this->m_b; }
@@ -259,6 +259,7 @@ namespace wlib
     [[nodiscard]] constexpr std::byte const* end() const { return this->m_c; }
     [[nodiscard]] constexpr std::byte const* cend() const { return this->m_c; }
 
+    [[nodiscard]] constexpr std::byte*  pos() const { return this->m_c; }
     [[nodiscard]] constexpr std::size_t get_number_of_used_bytes() const { return this->m_c - this->m_data; }
     [[nodiscard]] constexpr std::size_t get_number_of_remaining_bytes() const { return (this->m_data + N) - this->m_c; }
     [[nodiscard]] constexpr std::size_t get_total_number_of_bytes() const { return N; }
@@ -315,7 +316,8 @@ namespace wlib
   }    // namespace internal
 
   template <typename T>
-  requires(internal::native_serialize_able<T>) auto serialize(wlib::ByteSink_Interface& sink, T const& value, std::endian const& endian = std::endian::native)
+    requires(internal::native_serialize_able<T>)
+  auto serialize(wlib::ByteSink_Interface& sink, T const& value, std::endian const& endian = std::endian::native)
   {
     std::byte const* begin = reinterpret_cast<std::byte const*>(&value);
     std::byte const* end   = begin + sizeof(T);
@@ -328,11 +330,12 @@ namespace wlib
   template <typename T> std::optional<T> deserialize(wlib::ByteSource_Interface& source, std::endian const& endian = std::endian::native);
 
   template <typename T>
-  requires(internal::native_serialize_able<T>) std::optional<T> deserialize(wlib::ByteSource_Interface& source, std::endian const& endian = std::endian::native)
+    requires(internal::native_serialize_able<T>)
+  std::optional<T> deserialize(wlib::ByteSource_Interface& source, std::endian const& endian = std::endian::native)
   {
-    T                ret;
-    std::byte*       begin = reinterpret_cast<std::byte*>(&ret);
-    std::byte const* end   = begin + sizeof(T);
+    T ret{};
+    std::byte*                                    begin = reinterpret_cast<std::byte*>(&ret);
+    std::byte const*                              end   = begin + sizeof(T);
     if (endian == std::endian::native)
     {
       if (source(begin, end) != sizeof(T))
@@ -343,7 +346,7 @@ namespace wlib
       if (source(reverse, begin, end) != sizeof(T))
         return std::nullopt;
     }
-    return ret;
+    return *reinterpret_cast<T*>(&ret);
   }
 }    // namespace wlib
 
